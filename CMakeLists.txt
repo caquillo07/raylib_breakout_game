@@ -3,7 +3,8 @@ project(breakout_game C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(breakout_game main.c)
+file(GLOB SOURCES *.c *.h src/*.c src/*.h src/*/*.c src/*/*.h)
+add_executable(breakout_game ${SOURCES})
 
 target_compile_options(breakout_game PRIVATE -Wall -Wextra -fsanitize=address)
 target_link_options(breakout_game PRIVATE -fsanitize=address)
