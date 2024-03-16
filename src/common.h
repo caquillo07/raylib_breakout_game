@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <raylib.h>
 #include <slog.h>
 
 #define min(_a, _b) ({ __typeof__(_a) __a = (_a), __b = (_b); __a < __b ? __a : __b; })
@@ -33,6 +32,10 @@ typedef int32_t i32;
 typedef int64_t i64;
 typedef size_t usize;
 typedef ssize_t isize;
+
+#define ScreenWidth 600
+#define ScreenHeight 800
+#define FPS 120
 
 void initLogger();
 

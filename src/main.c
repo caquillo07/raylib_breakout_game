@@ -1,55 +1,73 @@
-#include <stdio.h>
-#include <raylib.h>
+#include "raylib.h"
 #include "common.h"
+#include "assets/textures.h"
+#include "array/array.h"
+#include "game.h"
 
-const int screenWidth = 1280;
-const int screenHeight = 720;
+Game game = {};
 
 static void input() {
-    slogw("input");
+    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+        game.player->direction = RIGHT;
+    }
+    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+        game.player->direction = LEFT;
+    }
 }
 
-static void update() {
-    slogt("update");
+static void update(float deltaTime) {
+    updatePlayer(game.player, deltaTime);
+    updateBall(game.ball, game.player, deltaTime);
+
+    updateBricks(game.bricks, game.ball, deltaTime);
+    game.brickCount = array_length(game.bricks);
 }
 
 static void draw() {
-    slogi("draw");
     BeginDrawing();
     {
         ClearBackground(DARKGRAY);
-        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+
+        TextureAtlas *atlas = getTextureAtlas("atlas"); // todo - fix this when its not 2:40am
+        DrawTextureRec(atlas->texture, game.player->frame, game.player->position, WHITE);
+
+        for (int i = 0; i < array_length(game.bricks); i++) {
+            if (game.bricks[i].health <= 0) {
+                continue;
+            }
+            DrawTextureRec(atlas->texture, game.bricks[i].frame, game.bricks[i].position, WHITE);
+        }
+
+        DrawCircleV(game.ball->position, game.ball->radius, WHITE);
+
     }
     EndDrawing();
 }
 
 static void init() {
+    InitWindow(ScreenWidth, ScreenHeight, "raylib [core] example - basic window");
+    SetTargetFPS(FPS);
+
     initLogger();
-    sloge("init");
+    initTextureManager();
 
-
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-    SetTargetFPS(60);
+    gameInit(&game);
 }
 
 static void cleanup() {
     CloseWindow();
-    slogf("cleanup");
+    slog_destroy();
+    destroyTextureManager();
+    destroyGame(&game);
 }
 
 int main() {
     init();
-    //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
+    while (!WindowShouldClose()) {
         input();
-        update();
+        update(GetFrameTime());
         draw();
-        break;
     }
-
     cleanup();
-    return 0;
+    return EXIT_SUCCESS;
 }
