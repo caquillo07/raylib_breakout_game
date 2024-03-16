@@ -1,0 +1,18 @@
+{
+  "name" : "breakout-game",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "ad8f67806431176e6917c3b5af30665a66c4019d",
+  "dependencies" : [ {
+    "name" : "glfw3",
+    "version>=" : "3.4"
+  }, {
+    "name" : "raylib",
+    "version>=" : "5.0"
+  }, {
+    "name" : "vcpkg-cmake-config",
+    "version>=" : "2022-02-06#1"
+  }, {
+    "name" : "vcpkg-cmake",
+    "version>=" : "2023-05-04"
+  } ]
+}
