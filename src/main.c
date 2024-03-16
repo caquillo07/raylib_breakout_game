@@ -1,58 +1,55 @@
 #include <stdio.h>
 #include <raylib.h>
+#include "common.h"
 
-void input(void) {
-    printf("input\n");
-}
-void update(void) {
-    printf("update\n");
-}
+const int screenWidth = 1280;
+const int screenHeight = 720;
 
-void draw(void) {
-    printf("draw\n");
+static void input() {
+    slogw("input");
 }
 
-void init(void) {
-    printf("init\n");
+static void update() {
+    slogt("update");
 }
 
-void cleanup(void) {
-    printf("cleanup\n");
+static void draw() {
+    slogi("draw");
+    BeginDrawing();
+    {
+        ClearBackground(DARKGRAY);
+        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+    }
+    EndDrawing();
+}
+
+static void init() {
+    initLogger();
+    sloge("init");
+
+
+    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    SetTargetFPS(60);
+}
+
+static void cleanup() {
+    CloseWindow();
+    slogf("cleanup");
 }
 
 int main() {
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    init();
     //--------------------------------------------------------------------------------------
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-        ClearBackground(DARKGRAY);
-
-        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+        input();
+        update();
+        draw();
+        break;
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-    printf("Hello, World!\n");
+    cleanup();
     return 0;
 }

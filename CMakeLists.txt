@@ -9,6 +9,10 @@ add_executable(breakout_game ${SOURCES})
 target_compile_options(breakout_game PRIVATE -Wall -Wextra -fsanitize=address)
 target_link_options(breakout_game PRIVATE -fsanitize=address)
 
+add_subdirectory(vendors/slog)
+target_include_directories(breakout_game SYSTEM PRIVATE ${PROJECT_SOURCE_DIR}/vendors/slog/src)
+target_link_libraries(breakout_game PRIVATE slog)
+
 find_package(raylib CONFIG REQUIRED)
 if (APPLE)
     message("[APPLE] "  ${CMAKE_SYSTEM_NAME})
@@ -19,3 +23,4 @@ endif()
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(breakout_game PRIVATE glfw)
+
