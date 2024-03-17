@@ -27,21 +27,11 @@ void updateBallLobby(Ball *ball, Player *player, float deltaTime) {
     ball->position.y = player->position.y - ball->radius;
 }
 
-static float lastBallY = 0;
-
 void updateBall(Ball *ball, Player *player, float deltaTime) {
     ball->position.x += ball->speed.x * deltaTime;
     ball->position.y += ball->speed.y * deltaTime;
 
-    if ((ball->position.x - ball->radius - WALL_THICKNESS) <= 0 ||
-        ball->position.x + ball->radius >= (ScreenWidth - WALL_THICKNESS)) {
-        ball->speed.x *= -1;
-    }
-    if (ball->position.y - ball->radius - WALL_THICKNESS <= 0) {
-        ball->speed.y *= -1;
-    }
     if (ball->position.y >= (ScreenHeight - ball->radius)) {
-//        resetBall(ball);
         ball->speed = (Vector2) {};
         return; // todo temp
     }
@@ -62,10 +52,31 @@ void updateBall(Ball *ball, Player *player, float deltaTime) {
             ball->speed.x *= -1;
         }
     }
-    if ((int) fabsf(ball->position.y - lastBallY) < (int) (ball->speed.y * deltaTime)) {
-        ball->speed.y *= 1;
+    Rectangle leftWallRect = {
+        .x = 0,
+        .y = 0,
+        .width = WALL_THICKNESS,
+        .height = ScreenHeight,
+    };
+    Rectangle rightWallRect = {
+        .x = ScreenWidth - WALL_THICKNESS,
+        .y = 0,
+        .width = WALL_THICKNESS,
+        .height = ScreenHeight,
+    };
+    if (CheckCollisionCircleRec(ball->position, ball->radius, leftWallRect) ||
+        CheckCollisionCircleRec(ball->position, ball->radius, rightWallRect)) {
+        ball->speed.x *= -1;
     }
-    lastBallY = ball->position.y;
+    Rectangle topWallRect = {
+        .x = 0,
+        .y = 0,
+        .width = ScreenWidth,
+        .height = WALL_THICKNESS,
+    };
+    if (CheckCollisionCircleRec(ball->position, ball->radius, topWallRect)) {
+        ball->speed.y *= -1;
+    }
 }
 
 void updateBricks(Brick *bricks, Ball *ball, float deltaTime) {
