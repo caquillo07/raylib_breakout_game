@@ -63,6 +63,8 @@ void gameInit(Game *game) {
     game->ball->radius = ballSprite->sourceWidth / 2;
     game->ball->sprite = *ballSprite;
     game->ball->frame = getSpriteFrame(*ballSprite);
+
+    game->state = LOBBY;
 }
 
 void destroyGame(Game *game) {

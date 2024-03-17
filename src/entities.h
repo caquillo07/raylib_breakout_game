@@ -37,8 +37,14 @@ typedef struct Ball {
     Rectangle frame;
 } Ball;
 
+Vector2 ballLeftSide(Ball *ball);
+Vector2 ballRightSide(Ball *ball);
+Vector2 ballTopSide(Ball *ball);
+Vector2 ballBottomSide(Ball *ball);
+
 void updatePlayer(Player *player, float dt);
 void updateBall(Ball *ball, Player *player, float deltaTime);
+void updateBallLobby(Ball *ball, Player *player, float deltaTime);
 void updateBricks(Brick *bricks, Ball* ball, float deltaTime);
 
 #endif //BREAKOUT_GAME_ENTITIES_H

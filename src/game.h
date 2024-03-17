@@ -7,7 +7,17 @@
 
 #include "entities.h"
 
+typedef enum GameState {
+    MENU_SCREEN,
+    LOBBY,
+    PLAYING,
+    PAUSED,
+    GAME_OVER,
+    WIN,
+} GameState;
+
 typedef struct Game {
+    GameState state;
     Player *player;
     Brick *bricks;
     Ball *ball;

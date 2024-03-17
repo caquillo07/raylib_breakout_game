@@ -7,17 +7,61 @@
 Game game = {};
 
 static void input() {
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-        game.player->direction = RIGHT;
+    // switch on game state for general input
+    if (game.state == MENU_SCREEN) {
+        if (IsKeyPressed(KEY_ENTER)) {
+            game.state = LOBBY;
+        }
     }
-    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        game.player->direction = LEFT;
+    if (game.state == LOBBY || game.state == PLAYING) {
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+            game.player->direction = RIGHT;
+            return;
+        }
+        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+            game.player->direction = LEFT;
+            return;
+        }
+    }
+    if (game.state == LOBBY) {
+        if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) {
+            game.state = PLAYING;
+        }
+    }
+    if (game.state == PLAYING) {
+        if (IsKeyPressed(KEY_P)) {
+            game.state = PAUSED;
+            return;
+        }
+    }
+    if (game.state == PAUSED) {
+        if (IsKeyPressed(KEY_P) || IsKeyPressed(KEY_ESCAPE)) {
+            game.state = PLAYING;
+        }
     }
 }
 
 static void update(float deltaTime) {
-    updatePlayer(game.player, deltaTime);
-    updateBall(game.ball, game.player, deltaTime);
+    switch (game.state) {
+        case MENU_SCREEN:
+            break;
+        case LOBBY:
+            updateBallLobby(game.ball, game.player, deltaTime);
+            updatePlayer(game.player, deltaTime);
+            break;
+        case PLAYING:
+            updatePlayer(game.player, deltaTime);
+            updateBall(game.ball, game.player, deltaTime);
+            break;
+        case PAUSED:
+            break;
+        case GAME_OVER:
+            break;
+        case WIN:
+            break;
+        default:
+            break;
+    }
 
     updateBricks(game.bricks, game.ball, deltaTime);
     game.brickCount = array_length(game.bricks);
@@ -26,7 +70,11 @@ static void update(float deltaTime) {
 static void draw() {
     BeginDrawing();
     {
-        ClearBackground(DARKGRAY);
+        ClearBackground(GRAY);
+        // draw walls and a ceiling
+        DrawRectangle(0, 0, ScreenWidth, 10, DARKGRAY);
+        DrawRectangle(0, 0, 10, ScreenHeight, DARKGRAY);
+        DrawRectangle(ScreenWidth - 10, 0, 10, ScreenHeight, DARKGRAY);
 
         TextureAtlas *atlas = getTextureAtlas("atlas"); // todo - fix this when its not 2:40am
         DrawTextureRec(atlas->texture, game.player->frame, game.player->position, WHITE);
@@ -41,12 +89,13 @@ static void draw() {
         DrawCircleV(game.ball->position, game.ball->radius, WHITE);
 
     }
+    DrawFPS(10, 10);
     EndDrawing();
 }
 
 static void init() {
     InitWindow(ScreenWidth, ScreenHeight, "raylib [core] example - basic window");
-    SetTargetFPS(FPS);
+//    SetTargetFPS(FPS);
 
     initLogger();
     initTextureManager();
@@ -64,8 +113,9 @@ static void cleanup() {
 int main() {
     init();
     while (!WindowShouldClose()) {
+        float deltaTime = min(GetFrameTime(), 1/60.f);
         input();
-        update(GetFrameTime());
+        update(deltaTime);
         draw();
     }
     cleanup();
