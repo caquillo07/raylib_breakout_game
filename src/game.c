@@ -4,40 +4,36 @@
 
 #include "game.h"
 #include "array/array.h"
+#include "levels.h"
 
-#define MAP_WIDTH 6
-#define MAP_HEIGHT 4
-const int bricksMap[MAP_HEIGHT * MAP_WIDTH] = {
-    1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1,
-};
 
 void gameInit(Game *game) {
+    game->level = 1;
+    game->highestScore = 0;
+    game->state = LOBBY;
+
     TextureAtlas *atlas = getTextureAtlas("atlas");
-    game->player = (Player *) malloc(sizeof(Player));
-    panicIf(game->player == nil, "Failed to allocate memory for player");
-    memset(game->player, 0, sizeof(Player));
-    Sprite *sprite = getSprite(atlas, "paddleBlu");
-    panicIf(sprite == nil, "Failed to get sprite");
-    game->player->sprite = *sprite;
-    game->player->speed = 350;
-    game->player->position = (Vector2) {(ScreenWidth / 2) - (sprite->sourceWidth / 2), 600};
-    game->player->direction = NONE;
-    game->player->frame = getSpriteFrame(*sprite);
+    panicIf(atlas == nil, "Failed to get texture atlas");
+
+    Sprite *playerSprite = getSprite(atlas, "paddleBlu");
+    panicIf(playerSprite == nil, "Failed to get sprite");
+
+    game->player = newPlayer(*playerSprite);
+    game->ball = newBall(*getSprite(atlas, "ballBlue"), game->player);
 
     Sprite *brickSprite = getSprite(atlas, "element_blue_rectangle");
     for (int i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
-        if (bricksMap[i] == 0) {
+        if (levelOneBricks[i] == 0) {
             continue;
         }
-        float brickX = (i % MAP_WIDTH) * brickSprite->sourceWidth;
-        float brickY = (i / MAP_WIDTH) * brickSprite->sourceHeight;
-        float emptyXSpace = (MAP_WIDTH * brickSprite->sourceWidth) - ScreenWidth;
+
+        const float topPadding = 20;
+        float brickX = (float)(i % MAP_WIDTH) * (float)brickSprite->sourceWidth;
+        float brickY = ((float)(i / MAP_WIDTH) * (float)brickSprite->sourceHeight) + topPadding;
+        float emptyXSpace = (float)(MAP_WIDTH * brickSprite->sourceWidth) - ScreenWidth;
         Brick brick = {
             .frame = getSpriteFrame(*brickSprite),
-            .health = bricksMap[i],
+            .health = levelOneBricks[i],
             .sprite = *brickSprite,
             .position = (Vector2) {
                 .x = brickX - emptyXSpace / 2,
@@ -47,31 +43,89 @@ void gameInit(Game *game) {
         array_push(game->bricks, brick);
     }
     game->brickCount = array_length(game->bricks);
-
-    game->ball = (Ball *) malloc(sizeof(Ball));
-    panicIf(game->ball == nil, "Failed to allocate memory for ball");
-    memset(game->ball, 0, sizeof(Ball));
-
-    Sprite* ballSprite = getSprite(atlas, "ballBlue");
-    panicIf(ballSprite == nil, "Failed to get sprite");
-
-
-    float ballX = (ScreenWidth / 2) - (ballSprite->sourceWidth / 2);
-    float ballY = game->player->position.y - ballSprite->sourceHeight;
-    game->ball->position = (Vector2) {ballX, ballY};
-    game->ball->speed = (Vector2) {200, -200};
-    game->ball->radius = ballSprite->sourceWidth / 2;
-    game->ball->sprite = *ballSprite;
-    game->ball->frame = getSpriteFrame(*ballSprite);
-
-    game->state = LOBBY;
 }
 
 void destroyGame(Game *game) {
-    free(game->player);
+    destroyPlayer(game->player);
     game->player = nil;
+
     array_free(game->bricks);
     game->bricks = nil;
-    free(game->ball);
+
+    destroyBall(game->ball);
     game->ball = nil;
+}
+
+void drawDebug(Game *game) {
+    if (!game->isDebug) {
+        return;
+    }
+
+    const int fontSize = 20;
+    const int topPadding = 30;
+    const int leftPadding = 10;
+    DrawText(
+        TextFormat("Ball Speed: %02.fx%02.f", game->ball->speed.x, game->ball->speed.y),
+        leftPadding,
+        topPadding,
+        fontSize,
+        GREEN
+    );
+    DrawText(
+        TextFormat("Ball Multi: %i", game->ball->isMultiplied),
+        leftPadding,
+        topPadding + fontSize,
+        fontSize,
+        GREEN
+    );
+}
+
+void drawGameScores(Game *game) {
+    const int topPadding = 10;
+    const int rightPadding = 20;
+    const int fontSize = 30;
+    const char *currentScoreText = TextFormat("Score: %i", game->player->score);
+    const int currentScoreWidth = MeasureText(currentScoreText, fontSize);
+    DrawText(
+        currentScoreText,
+        ScreenWidth - currentScoreWidth - rightPadding,
+        topPadding,
+        fontSize,
+        WHITE
+    );
+
+    const char *highestScoreText = TextFormat("Highest Score: %i", game->highestScore);
+    const int highestScoreWidth = MeasureText(highestScoreText, fontSize);
+    DrawText(
+        highestScoreText,
+        ScreenWidth - highestScoreWidth - rightPadding,
+        topPadding + fontSize /* the height of the previous text */,
+        fontSize,
+        WHITE
+    );
+}
+
+void updateGame(Game *game) {
+    if (game->highestScore < game->player->score) {
+        game->highestScore = game->player->score;
+    }
+
+    if (game->ball->dead) {
+        game->player->lives--;
+        if (game->player->lives <= 0) {
+            game->state = GAME_OVER;
+            return;
+        }
+    }
+}
+
+void resetGame(Game *game) {
+    game->player->score = 0;
+    game->player->lives = 3;
+    game->level = 1;
+    game->highestScore = 0;
+    game->state = LOBBY;
+
+    // player
+    resetPlayer(game->player);
 }

@@ -7,6 +7,9 @@
 Game game = {};
 
 static void input() {
+    if (IsKeyPressed(KEY_F1)) {
+        game.isDebug = !game.isDebug;
+    }
     // switch on game state for general input
     if (game.state == MENU_SCREEN) {
         if (IsKeyPressed(KEY_ENTER)) {
@@ -31,8 +34,13 @@ static void input() {
     if (game.state == PLAYING) {
         if (IsKeyPressed(KEY_P)) {
             game.state = PAUSED;
-            return;
         }
+        if (IsKeyDown(KEY_SPACE)) {
+            game.ball->isMultiplied = true;
+        } else {
+            game.ball->isMultiplied = false;
+        }
+        return;
     }
     if (game.state == PAUSED) {
         if (IsKeyPressed(KEY_P) || IsKeyPressed(KEY_ESCAPE)) {
@@ -46,12 +54,13 @@ static void update(float deltaTime) {
         case MENU_SCREEN:
             break;
         case LOBBY:
-            updateBallLobby(game.ball, game.player, deltaTime);
+            updateBallLobby(game.ball, game.player);
             updatePlayer(game.player, deltaTime);
             break;
         case PLAYING:
             updatePlayer(game.player, deltaTime);
             updateBall(game.ball, game.player, deltaTime);
+            updateBricks(game.bricks, game.ball, game.player, deltaTime);
             break;
         case PAUSED:
             break;
@@ -63,7 +72,7 @@ static void update(float deltaTime) {
             break;
     }
 
-    updateBricks(game.bricks, game.ball, deltaTime);
+    updateGame(&game);
     game.brickCount = array_length(game.bricks);
 }
 
@@ -72,9 +81,9 @@ static void draw() {
     {
         ClearBackground(GRAY);
         // draw walls and a ceiling
-        DrawRectangle(0, 0, ScreenWidth, 10, DARKGRAY);
-        DrawRectangle(0, 0, 10, ScreenHeight, DARKGRAY);
-        DrawRectangle(ScreenWidth - 10, 0, 10, ScreenHeight, DARKGRAY);
+        DrawRectangle(0, 0, WALL_WIDTH, ScreenHeight, DARKGRAY);
+        DrawRectangle(ScreenWidth - WALL_WIDTH, 0, WALL_WIDTH, ScreenHeight, DARKGRAY);
+        DrawRectangle(0, 0, ScreenWidth, CEILING_HEIGHT, DARKGRAY);
 
         TextureAtlas *atlas = getTextureAtlas("atlas"); // todo - fix this when its not 2:40am
         DrawTextureRec(atlas->texture, game.player->frame, game.player->position, WHITE);
@@ -86,8 +95,10 @@ static void draw() {
             DrawTextureRec(atlas->texture, game.bricks[i].frame, game.bricks[i].position, WHITE);
         }
 
-        DrawCircleV(game.ball->position, game.ball->radius, WHITE);
+        DrawCircleV(game.ball->position, (float) game.ball->radius, WHITE);
 
+        drawGameScores(&game);
+        drawDebug(&game);
     }
     DrawFPS(10, 10);
     EndDrawing();
@@ -95,7 +106,7 @@ static void draw() {
 
 static void init() {
     InitWindow(ScreenWidth, ScreenHeight, "raylib [core] example - basic window");
-//    SetTargetFPS(FPS);
+    SetTargetFPS(FPS);
 
     initLogger();
     initTextureManager();
@@ -113,7 +124,7 @@ static void cleanup() {
 int main() {
     init();
     while (!WindowShouldClose()) {
-        float deltaTime = min(GetFrameTime(), 1/60.f);
+        float deltaTime = min(GetFrameTime(), 1 / 60.f);
         input();
         update(deltaTime);
         draw();

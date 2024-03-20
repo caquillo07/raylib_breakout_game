@@ -36,7 +36,8 @@ typedef ssize_t isize;
 #define ScreenWidth 600
 #define ScreenHeight 800
 #define FPS 120
-#define WALL_THICKNESS 10
+#define WALL_WIDTH 10
+#define CEILING_HEIGHT 80
 
 
 void initLogger();

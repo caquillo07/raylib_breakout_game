@@ -22,9 +22,18 @@ typedef struct Game {
     Brick *bricks;
     Ball *ball;
     u32 brickCount;
+    u32 level;
+    u32 highestScore;
+    bool isDebug;
 } Game;
 
 void gameInit(Game *game);
 void destroyGame(Game *game);
+
+void updateGame(Game *game);
+void resetGame(Game *game);
+
+void drawGameScores(Game *game);
+void drawDebug(Game *game);
 
 #endif //BREAKOUT_GAME_GAME_H

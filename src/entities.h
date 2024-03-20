@@ -20,6 +20,8 @@ typedef struct Player {
     i8 direction;
     Vector2 position;
     Rectangle frame;
+    u32 score;
+    u32 lives;
 } Player;
 
 typedef struct Brick {
@@ -35,6 +37,8 @@ typedef struct Ball {
     int radius;
     Sprite sprite;
     Rectangle frame;
+    bool isMultiplied;
+    bool dead;
 } Ball;
 
 Vector2 ballLeftSide(Ball *ball);
@@ -42,9 +46,17 @@ Vector2 ballRightSide(Ball *ball);
 Vector2 ballTopSide(Ball *ball);
 Vector2 ballBottomSide(Ball *ball);
 
+Player* newPlayer(Sprite sprite);
 void updatePlayer(Player *player, float dt);
+void resetPlayer(Player *player);
+void destroyPlayer(Player *player);
+
+Ball *newBall(Sprite sprite, Player *player);
 void updateBall(Ball *ball, Player *player, float deltaTime);
-void updateBallLobby(Ball *ball, Player *player, float deltaTime);
-void updateBricks(Brick *bricks, Ball* ball, float deltaTime);
+void resetBall(Ball *ball, Player *player);
+void destroyBall(Ball *ball);
+
+void updateBallLobby(Ball *ball, Player *player);
+void updateBricks(Brick *bricks, Ball *ball, Player *player, float deltaTime);
 
 #endif //BREAKOUT_GAME_ENTITIES_H
