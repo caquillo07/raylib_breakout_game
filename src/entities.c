@@ -37,6 +37,7 @@ void updateBall(Ball *ball, Player *player, float deltaTime) {
 
     if (ball->position.y >= (ScreenHeight - ball->radius)) {
         ball->speed = (Vector2) {};
+        ball->dead = true;
         return; // todo temp
     }
 

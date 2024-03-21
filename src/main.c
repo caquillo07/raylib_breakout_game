@@ -80,6 +80,9 @@ static void update(float deltaTime) {
     }
 
     updateGame(&game);
+    if (game.state == GAME_OVER) {
+        resetGame(&game);
+    }
     game.brickCount = array_length(game.bricks);
 }
 
@@ -104,7 +107,7 @@ static void draw() {
 
         DrawCircleV(game.ball->position, (float) game.ball->radius, WHITE);
 
-        drawGameScores(&game);
+        drawHUD(&game);
         drawDebug(&game);
     }
     DrawFPS(10, 10);

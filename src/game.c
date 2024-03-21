@@ -62,7 +62,7 @@ void drawDebug(Game *game) {
     );
 }
 
-void drawGameScores(Game *game) {
+void drawHUD(Game *game) {
     const int topPadding = 10;
     const int rightPadding = 20;
     const int fontSize = 30;
@@ -85,6 +85,16 @@ void drawGameScores(Game *game) {
         fontSize,
         WHITE
     );
+
+    const char *livesText = TextFormat("Lives: %i", game->player->lives);
+//    const int livesWidth = MeasureText(livesText, fontSize);
+    DrawText(
+        livesText,
+        rightPadding,
+        topPadding + fontSize /* the height of "the" previous text */,
+        fontSize,
+        WHITE
+    );
 }
 
 void updateGame(Game *game) {
@@ -98,7 +108,10 @@ void updateGame(Game *game) {
             game->state = GAME_OVER;
             return;
         }
+        resetBall(game->ball, game->player);
+        game->state = LOBBY;
     }
+
 }
 
 void loadLevel(Game *game, TextureAtlas *atlas, const int levelNum) {

@@ -35,7 +35,7 @@ void resetGame(Game *game);
 
 void loadLevel(Game *game, TextureAtlas *atlas, const int levelNum);
 
-void drawGameScores(Game *game);
+void drawHUD(Game *game);
 void drawDebug(Game *game);
 
 #endif //BREAKOUT_GAME_GAME_H
