@@ -164,7 +164,6 @@ void resetGame(Game *game) {
     game->player->score = 0;
     game->player->lives = 3;
     game->level = 1;
-    game->highestScore = 0;
     game->state = LOBBY;
 
     // player
