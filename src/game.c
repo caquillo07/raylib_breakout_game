@@ -22,27 +22,9 @@ void gameInit(Game *game) {
     game->ball = newBall(*getSprite(atlas, "ballBlue"), game->player);
 
     Sprite *brickSprite = getSprite(atlas, "element_blue_rectangle");
-    for (int i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
-        if (levelOneBricks[i] == 0) {
-            continue;
-        }
+    panicIf(brickSprite == nil, "Failed to get sprite");
 
-        const float topPadding = 20;
-        float brickX = (float)(i % MAP_WIDTH) * (float)brickSprite->sourceWidth;
-        float brickY = ((float)(i / MAP_WIDTH) * (float)brickSprite->sourceHeight) + topPadding;
-        float emptyXSpace = (float)(MAP_WIDTH * brickSprite->sourceWidth) - ScreenWidth;
-        Brick brick = {
-            .frame = getSpriteFrame(*brickSprite),
-            .health = levelOneBricks[i],
-            .sprite = *brickSprite,
-            .position = (Vector2) {
-                .x = brickX - emptyXSpace / 2,
-                .y = brickY - emptyXSpace / 2,
-            },
-        };
-        array_push(game->bricks, brick);
-    }
-    game->brickCount = array_length(game->bricks);
+    loadLevel(game, atlas, 2);
 }
 
 void destroyGame(Game *game) {
@@ -119,6 +101,52 @@ void updateGame(Game *game) {
     }
 }
 
+void loadLevel(Game *game, TextureAtlas *atlas, const int levelNum) {
+    int levelData[BRICKS_PER_MAP];
+    switch (levelNum) {
+        case 1:
+            memcpy(levelData, levelOneBricks, sizeof(levelOneBricks));
+            break;
+        case 2:
+            memcpy(levelData, levelTwoBricks, sizeof(levelTwoBricks));
+            break;
+        case 3:
+            memcpy(levelData, levelThreeBricks, sizeof(levelThreeBricks));
+            break;
+        default:
+            memcpy(levelData, levelOneBricks, sizeof(levelOneBricks));
+            break;
+    }
+
+
+    if (game->bricks != nil) {
+        array_free(game->bricks);
+        game->bricks = nil;
+    }
+    Sprite *brickSprite = getSprite(atlas, "element_blue_rectangle");
+    for (int i = 0; i < BRICKS_PER_MAP; i++) {
+        if (levelData[i] == 0) {
+            continue;
+        }
+
+        const float topPadding = 20;
+        float brickX = (float) (i % MAP_WIDTH) * (float) brickSprite->sourceWidth;
+        float brickY = ((float) (i / MAP_WIDTH) * (float) brickSprite->sourceHeight) + topPadding;
+        float emptyXSpace = (float) (MAP_WIDTH * brickSprite->sourceWidth) - ScreenWidth;
+        Brick brick = {
+            .frame = getSpriteFrame(*brickSprite),
+            .health = 1,
+            .sprite = *brickSprite,
+            .position = (Vector2) {
+                .x = brickX - emptyXSpace / 2,
+                .y = brickY - emptyXSpace / 2,
+            },
+        };
+        array_push(game->bricks, brick);
+    }
+    game->brickCount = array_length(game->bricks);
+}
+
 void resetGame(Game *game) {
     game->player->score = 0;
     game->player->lives = 3;
@@ -128,4 +156,6 @@ void resetGame(Game *game) {
 
     // player
     resetPlayer(game->player);
+    resetBall(game->ball, game->player);
+    loadLevel(game, getTextureAtlas("atlas"), 1);
 }

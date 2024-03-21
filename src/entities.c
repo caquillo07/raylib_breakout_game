@@ -221,3 +221,4 @@ Ball *newBall(Sprite sprite, Player *player) {
 void destroyBall(Ball *ball) {
     free(ball);
 }
+

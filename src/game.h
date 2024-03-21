@@ -33,6 +33,8 @@ void destroyGame(Game *game);
 void updateGame(Game *game);
 void resetGame(Game *game);
 
+void loadLevel(Game *game, TextureAtlas *atlas, const int levelNum);
+
 void drawGameScores(Game *game);
 void drawDebug(Game *game);
 

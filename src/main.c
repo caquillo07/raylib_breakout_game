@@ -47,6 +47,13 @@ static void input() {
             game.state = PLAYING;
         }
     }
+
+    if (game.state == GAME_OVER) {
+        if (IsKeyPressed(KEY_ENTER)) {
+            resetGame(&game);
+            game.state = LOBBY;
+        }
+    }
 }
 
 static void update(float deltaTime) {
