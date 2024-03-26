@@ -84,14 +84,30 @@ void updateBall(Ball *ball, Player *player, float deltaTime) {
     }
 }
 
-void updateBricks(Brick *bricks, Ball *ball, Player *player, float deltaTime) {
-    if (!deltaTime) {
-        return;
+void debugRemoveNBricks(Brick *bricks, int num) {
+    for (int i = 0; i < array_length(bricks); i++) {
+        if (num <= 0) {
+            break;
+        }
+        if (bricks[i].health == 0) {
+            continue;
+        }
+        num--;
+        bricks[i].health = 0;
     }
+}
+
+int updateBricks(Brick *bricks, Ball *ball, Player *player, float deltaTime) {
+    if (!deltaTime) {
+        deltaTime = 1.f;
+    }
+
+    int brickCount = 0;
     for (int i = 0; i < array_length(bricks); i++) {
         if (bricks[i].health <= 0) {
             continue;
         }
+        brickCount++;
         Rectangle brickRect = {
             .x = bricks[i].position.x,
             .y = bricks[i].position.y,
@@ -138,9 +154,10 @@ void updateBricks(Brick *bricks, Ball *ball, Player *player, float deltaTime) {
                 bricks[i].health--;
                 player->score += 10;
             }
-            return;
+            return brickCount;
         }
     }
+    return brickCount;
 }
 
 Vector2 ballLeftSide(Ball *ball) {

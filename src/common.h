@@ -12,6 +12,9 @@
 #include <time.h>
 #include <slog.h>
 
+// todo: make this env driven
+#define DEBUG 1
+
 #define min(_a, _b) ({ __typeof__(_a) __a = (_a), __b = (_b); __a < __b ? __a : __b; })
 #define max(_a, _b) ({ __typeof__(_a) __a = (_a), __b = (_b); __a > __b ? __a : __b; })
 
@@ -38,6 +41,7 @@ typedef ssize_t isize;
 #define FPS 120
 #define WALL_WIDTH 10
 #define CEILING_HEIGHT 80
+
 
 
 void initLogger();

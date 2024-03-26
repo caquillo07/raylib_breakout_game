@@ -57,6 +57,8 @@ void resetBall(Ball *ball, Player *player);
 void destroyBall(Ball *ball);
 
 void updateBallLobby(Ball *ball, Player *player);
-void updateBricks(Brick *bricks, Ball *ball, Player *player, float deltaTime);
+int updateBricks(Brick *bricks, Ball *ball, Player *player, float deltaTime);
+void debugRemoveNBricks(Brick *bricks, int num);
+
 
 #endif //BREAKOUT_GAME_ENTITIES_H

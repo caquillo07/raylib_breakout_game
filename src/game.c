@@ -24,7 +24,7 @@ void gameInit(Game *game) {
     Sprite *brickSprite = getSprite(atlas, "element_blue_rectangle");
     panicIf(brickSprite == nil, "Failed to get sprite");
 
-    loadLevel(game, atlas, 2);
+    loadLevel(game, atlas, 1);
 }
 
 void destroyGame(Game *game) {
@@ -86,8 +86,16 @@ void drawHUD(Game *game) {
         WHITE
     );
 
+    const char *levelText = TextFormat("Level: %i", game->level);
+    DrawText(
+        levelText,
+        rightPadding,
+        topPadding,
+        fontSize,
+        WHITE
+    );
+
     const char *livesText = TextFormat("Lives: %i", game->player->lives);
-//    const int livesWidth = MeasureText(livesText, fontSize);
     DrawText(
         livesText,
         rightPadding,
@@ -110,8 +118,19 @@ void updateGame(Game *game) {
         }
         resetBall(game->ball, game->player);
         game->state = LOBBY;
+        return;
     }
 
+    if (game->brickCount <= 0 && game->state == PLAYING) {
+        if (game->level == TOTAL_LEVELS) {
+            game->state = WIN;
+            return;
+        }
+        game->level++;
+        loadLevel(game, getTextureAtlas("atlas"), game->level);
+        resetBall(game->ball, game->player);
+        game->state = LOBBY;
+    }
 }
 
 void loadLevel(Game *game, TextureAtlas *atlas, const int levelNum) {

@@ -6,10 +6,20 @@
 
 Game game = {};
 
-static void input() {
+static void handleDebugInput() {
+    #ifdef DEBUG
     if (IsKeyPressed(KEY_F1)) {
         game.isDebug = !game.isDebug;
     }
+    if (IsKeyPressed(KEY_F2)) {
+        debugRemoveNBricks(game.bricks, 1);
+    }
+    #endif
+}
+
+static void input() {
+    handleDebugInput();
+
     // switch on game state for general input
     if (game.state == MENU_SCREEN) {
         if (IsKeyPressed(KEY_ENTER)) {
@@ -67,7 +77,7 @@ static void update(float deltaTime) {
         case PLAYING:
             updatePlayer(game.player, deltaTime);
             updateBall(game.ball, game.player, deltaTime);
-            updateBricks(game.bricks, game.ball, game.player, deltaTime);
+            game.brickCount = updateBricks(game.bricks, game.ball, game.player, deltaTime);
             break;
         case PAUSED:
             break;
@@ -83,7 +93,6 @@ static void update(float deltaTime) {
     if (game.state == GAME_OVER) {
         resetGame(&game);
     }
-    game.brickCount = array_length(game.bricks);
 }
 
 static void draw() {
